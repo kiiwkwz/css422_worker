@@ -1,0 +1,12 @@
+POST localhost:3000/mockGetTask
+
+request
+{
+	"newTask": true,
+	"taskId": 1,
+	"algo": "md5",
+	"start": 1,
+	"end": 2000000,
+	"timeout": 180,
+	"hashes": "1a8bd22d38d147251a13d4288f91ef2d"
+}

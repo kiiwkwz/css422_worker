@@ -23,7 +23,7 @@ module.exports = class Base62 {
         var result = 0;
         for (var i = 0, len = value.length; i < len; i++) {
             result *= 62;
-            result += ALPHA.indexOf(value[i]);
+            result += this.ALPHA.indexOf(value[i]);
         }
 
         return result;
