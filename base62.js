@@ -19,11 +19,11 @@ module.exports = class Base62 {
         return result;
     }
 
-    decode = function (value) {
+    decode(value) {
         var result = 0;
         for (var i = 0, len = value.length; i < len; i++) {
             result *= 62;
-            result += this.ALPHA.indexOf(value[i]);
+            result += ALPHA.indexOf(value[i]);
         }
 
         return result;
