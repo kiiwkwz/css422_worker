@@ -21,7 +21,7 @@ function getToken() {
 }
 
 getToken().then((workerToken) => {
-    if(!workerToken) {
+    if(workerToken.success === "false") {
         return console.log('>>> no token');
     }
     
