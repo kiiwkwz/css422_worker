@@ -2,7 +2,7 @@ const cron = require('node-cron');
 const request = require('request');
 
 var managerAPIUrl = 'http://127.0.0.1:3500';
-var localAPIUrl = "http://127.0.0.1:3000"
+var localAPIUrl = "http://127.0.0.1:3000";
 
 function getToken() {
     var register = new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ function getToken() {
 }
 
 getToken().then((workerToken) => {
-    if(workerToken.success === "false") {
+    if(workerToken.success === false) {
         return console.log('>>> no token');
     }
     
