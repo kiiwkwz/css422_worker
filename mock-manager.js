@@ -1,26 +1,31 @@
 const express = require('express');
 const crypto = require('crypto');
-const Base62 = require('./base62');
+// const Base62 = require('base62');
 
 const app = express();
 const port = 3500;
 
 app.use(express.json());
 
-app.post('/api/worker/registration', (req, res) => {
+app.get('/api/worker/registration', (req, res) => {
     res.send({ workerToken: 123 });
 });
 
-app.get('/getTask', (req, res) => {
+app.get('/api/getTask', (req, res) => {
     res.json({
         "newTask": true,
         "taskId": 1,
         "algo": "md5",
-        "start": 1,
-        "end": 100000,
+        "start": 0,
+        "end": 14776335,
         "timeout": 180,
-        "hashes": "4124bc0a9335c27f086f24ba207a4912"
+        "hashes": [{"hash":"cc8c0a97c2dfcd73caff160b65aa39e2"}, {"hash":"b7a8bfd76f59da423f6d08d2f6c52668"}]
     });
+});
+
+app.post('/api/submitTask', (req, res) => {
+    console.log(req.body);
+    res.send(req.body);
 });
 
 app.listen(port, (err) => {
