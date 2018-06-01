@@ -5,6 +5,7 @@ const request = require('request');
 
 const app = express();
 const port = 3000;
+var managerAPIUrl = 'http://127.0.0.1:3500';
 
 app.use(express.json());
 
@@ -16,13 +17,21 @@ app.post('/getMd5', (req, res) => {
   res.send({ answer: crypto.createHash('md5').update(req.body.text).digest("hex") });
 });
 
-app.get('/mockGetTask', (req, response) => {
-  request('http://127.0.0.1:3500/api/getTask', function (err, res) {
-    if (err) {
-      return console.log('something bad happened', err);
+app.get('/mockGetTask', (req, res) => {
+  var workerToken = req.body.workerToken;
+  request({
+    method: "POST",
+    url: managerAPIUrl + '/api/getTask',
+    body: {workerToken: workerToken},
+    json: true
+  }, function (error, response) {
+    if (error) {
+      return console.log('something bad happened', error);
     }
+    console.log('>>> get task successful with token: ' + workerToken);
 
-    var resObject = JSON.parse(res.body);
+    var resObject = response.body;
+    // var resObject = JSON.parse(response.body);
     var start = resObject.start;
     var end = resObject.end;
     var hashes = resObject.hashes;
@@ -48,6 +57,7 @@ app.get('/mockGetTask', (req, response) => {
 
       if(found) {
         responseJson = {
+          workerToken: workerToken,
           taskId: resObject.taskId,
           answer: true,
           hashes: hashResult,
@@ -55,6 +65,7 @@ app.get('/mockGetTask', (req, response) => {
         };
       } else {
         responseJson = {
+          workerToken: workerToken,
           taskId: resObject.taskId,
           answer: false,
         };
@@ -62,17 +73,18 @@ app.get('/mockGetTask', (req, response) => {
     }
     else {
       responseJson = {
+        workerToken: workerToken,
         taskId: null,
       };
     }
-    response.json(responseJson);
+    res.json(responseJson);
   });
 });
 
 app.listen(port, (err) => {
   if (err) {
-    return console.log('something bad happened', err);
+    return console.log('>>> something bad happened', err);
   }
 
-  console.log(`server is listening on ${port}`);
+  console.log(`>>> server is listening on ${port}`);
 });

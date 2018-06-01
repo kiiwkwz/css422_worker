@@ -11,7 +11,8 @@ app.get('/api/worker/registration', (req, res) => {
     res.send({ workerToken: 123 });
 });
 
-app.get('/api/getTask', (req, res) => {
+app.post('/api/getTask', (req, res) => {
+    console.log('>>> ' + req.body.workerToken + " has requested to get task\n");
     res.json({
         "newTask": true,
         "taskId": 1,
@@ -24,14 +25,14 @@ app.get('/api/getTask', (req, res) => {
 });
 
 app.post('/api/submitTask', (req, res) => {
-    console.log(req.body);
+    console.log('>>> submitted task: \n', req.body , '\n');
     res.send(req.body);
 });
 
 app.listen(port, (err) => {
     if (err) {
-        return console.log('something bad happened', err);
+        return console.log('>>> something bad happened', err);
     }
 
-    console.log(`server is listening on ${port}`);
+    console.log(`>>> server is listening on ${port}`);
 });
