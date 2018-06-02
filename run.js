@@ -35,7 +35,7 @@ getToken().then((workerToken) => {
     console.log('>>> get token succesful, token: ' + workerToken + '\n');
 
     var count = 0;
-    var loopTime = 3; // seconds
+    var loopTime = 20; // seconds
 
     cron.schedule(`*/${loopTime} * * * * *`, function () { // run every loopTime
         request({
