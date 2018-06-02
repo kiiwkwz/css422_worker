@@ -34,7 +34,6 @@ getToken().then((workerToken) => {
     
     console.log('>>> get token succesful, token: ' + workerToken + '\n');
 
-    var count = 0;
     var loopTime = 20; // seconds
 
     cron.schedule(`*/${loopTime} * * * * *`, function () { // run every loopTime
@@ -62,17 +61,17 @@ getToken().then((workerToken) => {
             var responseJson = {};
 
             if (resObject.newTask) {
-                for (var i = 0; i <= hashes.length - 1; i++) {
-                    for (var j = start; j <= end; j++) {
-                        var text = Base62.encode(j);
+                for (var i = start; i <= end; i++) {
+                    for (var j = 0; j <= hashes.length - 1; j++) {
+                        var text = Base62.encode(i);
                         if (text.length != range) {
                             text = text.padding(range);
                         }
                         var hash = crypto.createHash(algo).update(text).digest('hex');
 
-                        if (hash == hashes[i].hash) {
+                        if (hash == hashes[j].hash) {
                             found = true;
-                            hashResult.push(hashes[i].hash);
+                            hashResult.push(hashes[j].hash);
                             plains.push(text);
                             break;
                         }
@@ -113,13 +112,13 @@ getToken().then((workerToken) => {
                     json: true
                 }, (error, response, body) => {
                     if (error) {
-                        console.log(`>>> [${count}] submit failed`, err, '\n');
+                        console.log(`>>> submit failed`, err, '\n');
                     } else {
-                        console.log(`>>> [${count}] task submitted`, body, '\n');
+                        console.log(`>>> task submitted`, body, '\n');
                     }
                 });
             } else { // don't have a new task
-                console.log(`>>> [${count}] no task\n`);
+                console.log(`>>> no task\n`);
             } 
         });
     });
