@@ -77,7 +77,7 @@ getToken().then((workerToken) => {
                 }
 
                 if (found) {
-                    responseJson = {
+                    responseJson = { // answer found
                         workerToken: workerToken,
                         taskId: resObject.taskId,
                         answer: true,
@@ -85,35 +85,39 @@ getToken().then((workerToken) => {
                         plains: plains
                     };
                 } else {
-                    responseJson = {
+                    responseJson = { // answer not found
                         workerToken: workerToken,
                         taskId: resObject.taskId,
                         answer: false,
                     };
                 }
             }
-            else {
+            else { // no task
                 responseJson = {
                     workerToken: workerToken,
                     taskId: null,
                 };
             }
 
-            request({
-                method: "POST",
-                url: managerAPIUrl + '/api/submitTask',
-                // headers: {
-                //     "Content-Type": "application/json"
-                // },
-                body: responseJson,
-                json: true
-            }, (error, response, body) => {
-                if (error) {
-                    console.log(`>>> [${count}] submit failed`, err, '\n');
-                } else {
-                    console.log(`>>> [${count}] task submitted`, body, '\n');
-                }
-            });
+            if (resJson.taskId !== null) { // have a new task
+                request({
+                    method: "POST",
+                    url: managerAPIUrl + '/api/submitTask',
+                    // headers: {
+                    //     "Content-Type": "application/json"
+                    // },
+                    body: responseJson,
+                    json: true
+                }, (error, response, body) => {
+                    if (error) {
+                        console.log(`>>> [${count}] submit failed`, err, '\n');
+                    } else {
+                        console.log(`>>> [${count}] task submitted`, body, '\n');
+                    }
+                });
+            } else { // don't have a new task
+                console.log(`>>> [${count}] no task\n`);
+            } 
         });
     });
 }, (err) => {
