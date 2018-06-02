@@ -115,5 +115,3 @@ getToken().then((workerToken) => {
 }, (err) => {
     console.log('>>> get token failed, error: ', err);
 });
-
-
