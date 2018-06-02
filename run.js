@@ -1,8 +1,13 @@
 const cron = require('node-cron');
 const request = require('request');
+const crypto = require('crypto');
+const Base62 = require('base62');
 
 var managerAPIUrl = 'http://127.0.0.1:3500';
-var localAPIUrl = "http://127.0.0.1:3000";
+
+String.prototype.padding = function (n) {
+    return new Array(n).join('0').slice((n || 2) * -1) + this;
+}
 
 function getToken() {
     var register = new Promise((resolve, reject) => {
@@ -32,41 +37,78 @@ getToken().then((workerToken) => {
 
     cron.schedule(`*/${loopTime} * * * * *`, function () { // run every loopTime
         request({
-            method: "GET",
-            url: localAPIUrl + '/mockGetTask',
-            body: {workerToken: workerToken},
+            method: "POST",
+            url: managerAPIUrl + '/api/getTask',
+            body: { workerToken: workerToken },
             json: true
-        }, (err, res) => {
-            if(count >= 10000) { // reset count when it over 10000
-                count = 0;
+        }, function (error, res) {
+            if (error) {
+                return console.log('something bad happened', error);
             }
-            count++;
+            console.log('>>> get task successful with token: ' + workerToken);
 
-            if (err) {
-                return console.log(`>>> [${count}] get task failed, ${err}\n`);
-            }
+            var resObject = res.body;
+            // var resObject = JSON.parse(response.body);
+            var start = resObject.start;
+            var end = resObject.end;
+            var hashes = resObject.hashes;
+            var hashResult = [];
+            var plains = [];
+            var found = false;
+            var responseJson = {};
 
-            let resJson = res.body;
-            // let resJson = JSON.parse(res.body);
+            if (resObject.newTask) {
+                for (var i = 0; i <= hashes.length - 1; i++) {
+                    for (var j = start; j <= end; j++) {
+                        var text = Base62.encode(j);
+                        var hash = crypto.createHash('md5').update(text).digest('hex');
 
-            if (resJson.taskId !== null) { // have a new task
+                        if (hash == hashes[i].hash) {
+                            found = true;
+                            hashResult.push(hashes[i].hash);
+                            plains.push(text);
+                            break;
+                        }
+                    }
+                }
+
+                if (found) {
+                    responseJson = {
+                        workerToken: workerToken,
+                        taskId: resObject.taskId,
+                        answer: true,
+                        hashes: hashResult,
+                        plains: plains
+                    };
+                } else {
+                    responseJson = {
+                        workerToken: workerToken,
+                        taskId: resObject.taskId,
+                        answer: false,
+                    };
+                }
+
                 request({
                     method: "POST",
                     url: managerAPIUrl + '/api/submitTask',
                     // headers: {
                     //     "Content-Type": "application/json"
                     // },
-                    body: resJson,
+                    body: responseJson,
                     json: true
                 }, (error, response, body) => {
-                    if(error) {
+                    if (error) {
                         console.log(`>>> [${count}] submit failed`, err, '\n');
                     } else {
                         console.log(`>>> [${count}] task submitted`, body, '\n');
                     }
                 });
-            } else { // don't have a new task
-                console.log(`>>> [${count}] no task\n`);
+            }
+            else {
+                responseJson = {
+                    workerToken: workerToken,
+                    taskId: null,
+                };
             }
         });
     });
