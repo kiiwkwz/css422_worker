@@ -64,7 +64,10 @@ getToken().then((workerToken) => {
             if (resObject.newTask) {
                 for (var i = 0; i <= hashes.length - 1; i++) {
                     for (var j = start; j <= end; j++) {
-                        var text = Base62.encode(j).padding(range);
+                        var text = Base62.encode(j);
+                        if (text.length != range) {
+                            text = text.padding(range);
+                        }
                         var hash = crypto.createHash(algo).update(text).digest('hex');
 
                         if (hash == hashes[i].hash) {
