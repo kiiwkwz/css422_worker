@@ -18,7 +18,8 @@ app.post('/api/getTask', (req, res) => {
         "taskId": 1,
         "algo": "md5",
         "start": 0,
-        "end": 14776335,
+        "end": 2600000,
+        "range": 4,
         "timeout": 180,
         "hashes": [{"hash":"cc8c0a97c2dfcd73caff160b65aa39e2"}, {"hash":"b7a8bfd76f59da423f6d08d2f6c52668"}]
     });

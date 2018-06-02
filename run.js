@@ -5,8 +5,10 @@ const Base62 = require('base62');
 
 var managerAPIUrl = 'http://127.0.0.1:3500';
 
-String.prototype.padding = function (n) {
-    return new Array(n).join('0').slice((n || 2) * -1) + this;
+String.prototype.padding = function (size) {
+    var s = String(this);
+    while (s.length < (size || 2)) { s = "0" + s; }
+    return s;
 }
 
 function getToken() {
@@ -52,6 +54,8 @@ getToken().then((workerToken) => {
             var start = resObject.start;
             var end = resObject.end;
             var hashes = resObject.hashes;
+            var range = resObject.range;
+            var algo = resObject.algo;
             var hashResult = [];
             var plains = [];
             var found = false;
@@ -60,8 +64,8 @@ getToken().then((workerToken) => {
             if (resObject.newTask) {
                 for (var i = 0; i <= hashes.length - 1; i++) {
                     for (var j = start; j <= end; j++) {
-                        var text = Base62.encode(j);
-                        var hash = crypto.createHash('md5').update(text).digest('hex');
+                        var text = Base62.encode(j).padding(range);
+                        var hash = crypto.createHash(algo).update(text).digest('hex');
 
                         if (hash == hashes[i].hash) {
                             found = true;
@@ -87,22 +91,6 @@ getToken().then((workerToken) => {
                         answer: false,
                     };
                 }
-
-                request({
-                    method: "POST",
-                    url: managerAPIUrl + '/api/submitTask',
-                    // headers: {
-                    //     "Content-Type": "application/json"
-                    // },
-                    body: responseJson,
-                    json: true
-                }, (error, response, body) => {
-                    if (error) {
-                        console.log(`>>> [${count}] submit failed`, err, '\n');
-                    } else {
-                        console.log(`>>> [${count}] task submitted`, body, '\n');
-                    }
-                });
             }
             else {
                 responseJson = {
@@ -110,6 +98,22 @@ getToken().then((workerToken) => {
                     taskId: null,
                 };
             }
+
+            request({
+                method: "POST",
+                url: managerAPIUrl + '/api/submitTask',
+                // headers: {
+                //     "Content-Type": "application/json"
+                // },
+                body: responseJson,
+                json: true
+            }, (error, response, body) => {
+                if (error) {
+                    console.log(`>>> [${count}] submit failed`, err, '\n');
+                } else {
+                    console.log(`>>> [${count}] task submitted`, body, '\n');
+                }
+            });
         });
     });
 }, (err) => {
