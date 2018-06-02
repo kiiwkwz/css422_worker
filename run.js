@@ -99,7 +99,7 @@ getToken().then((workerToken) => {
                 };
             }
 
-            if (resJson.taskId !== null) { // have a new task
+            if (responseJson.taskId !== null) { // have a new task
                 request({
                     method: "POST",
                     url: managerAPIUrl + '/api/submitTask',
