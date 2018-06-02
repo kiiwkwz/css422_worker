@@ -1,0 +1,27 @@
+{
+  "name": "css422_worker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "run.js",
+  "dependencies": {
+    "base62": "^2.0.0",
+    "crypto": "^1.0.1",
+    "express": "^4.16.3",
+    "node-cron": "^1.2.1",
+    "request": "^2.87.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nacabacu/css422_worker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nacabacu/css422_worker/issues"
+  },
+  "homepage": "https://github.com/Nacabacu/css422_worker#readme"
+}
