@@ -2,11 +2,11 @@
 
 The worker who works by the order...
 
-# installation
+### Installation and run
 
 DS-Worker require Node.js v4+ to run.
 
 ```
-npm install
-node run.js
+1. npm install
+2. node run.js
 ```
