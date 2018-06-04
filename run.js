@@ -3,7 +3,7 @@ const request = require('request');
 const crypto = require('crypto');
 const Base62 = require('base62');
 
-var managerAPIUrl = 'http://127.0.0.1:3500';
+var managerAPIUrl = 'http://hen.in.th/css422_manager/public/';
 
 String.prototype.padding = function (size) {
     var s = String(this);
@@ -42,16 +42,24 @@ getToken().then((workerToken) => {
             url: managerAPIUrl + '/api/getTask',
             body: { workerToken: workerToken },
             json: true
-        }, function (error, res) {
+        }, function (error, res) {            
             if (error) {
-                return console.log('something bad happened', error);
+                return console.log('something bad happened:\n', error);
             }
-            console.log('>>> get task successful with token: ' + workerToken);
 
             var resObject = res.body;
+
+            if(typeof resObject.success !== 'undefined' && !resObject.success) {
+                return console.log('>>> get a task false (problem occured with manager)');
+            } else if(resObject.newTask){
+                console.log('>>> get a task successful:\n', resObject);
+            } else {
+                console.log('>>> get a task successful');
+            }
+
             // var resObject = JSON.parse(response.body);
-            var start = resObject.start;
-            var end = resObject.end;
+            var start = Number(resObject.start);
+            var end = Number(resObject.end);
             var hashes = resObject.hashes;
             var range = resObject.range;
             var algo = resObject.algo;
@@ -59,23 +67,37 @@ getToken().then((workerToken) => {
             var plains = [];
             var found = false;
             var responseJson = {};
+            var tick = 0;
+            var progress = 0;
+            var progressRange = 1; // update every x%
 
             if (resObject.newTask) {
+                process.stdout.write(">>> progress: 0%");
+
                 for (var i = start; i <= end; i++) {
                     var text = Base62.encode(i);
                     if (text.length != range) {
                         text = text.padding(range);
                     }
+                    var hash = crypto.createHash(algo).update(text).digest('hex');
                     for (var j = 0; j <= hashes.length - 1; j++) {
-                        var hash = crypto.createHash(algo).update(text).digest('hex');
-
                         if (hash == hashes[j].hash) {
                             found = true;
                             hashResult.push(hashes[j].hash);
                             plains.push(text);
+                            break;
                         }
                     }
+                    // progress bar
+                    progress = Math.floor((i - start) / (end - start) * 100);
+                    if (progress % progressRange == 0 && progress == tick) {
+                        process.stdout.clearLine();
+                        process.stdout.cursorTo(0);
+                        process.stdout.write(">>> progress: " + tick.toString() + "%");
+                        tick += progressRange;
+                    }
                 }
+                process.stdout.write("\n");
 
                 if (found) {
                     responseJson = { // answer found
@@ -111,9 +133,13 @@ getToken().then((workerToken) => {
                     json: true
                 }, (error, response, body) => {
                     if (error) {
-                        console.log(`>>> submit failed`, err, '\n');
+                        console.log(`>>> submit failed:\n`, error, '\n');
                     } else {
-                        console.log(`>>> task submitted`, body, '\n');
+                        if(typeof body.success !== 'undefined' && !body.success) {
+                            return console.log('>>> task submit false (problem occured with manager)\n');
+                        } else {
+                            return console.log('>>> task submitted:\n', responseJson, '\n');
+                        }
                     }
                 });
             } else { // don't have a new task
